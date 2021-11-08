@@ -12,10 +12,10 @@ import org.springframework.stereotype.Component;
 public class FuelExceptionAspect {
 	
 	@Pointcut("@annotation(com.example.engines.annotations.FuelExceptionHandler)")
-    public void callWhenFueExceptionThrown() { }
+    public void callWhenFuelExceptionThrown() { }
 	
 
-	@Around("callWhenFueExceptionThrown()")
+	@Around("callWhenFuelExceptionThrown()")
 	public Object handleFuelException(ProceedingJoinPoint pjp) {
 		try {
 			System.out.println("Something went wrong");
