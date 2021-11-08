@@ -2,6 +2,7 @@ package com.example.engines.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,29 +14,25 @@ import com.example.engines.annotations.FuelExceptionHandler;
 import com.example.engines.exceptions.FuelTypeException;
 import com.example.engines.services.EngineService;
 
-@RestController
+@Controller
 public class EngineController {
 	
-	private EngineService dieselEngineService;
-	private EngineService petrolEngineService;
+	private ApplicationContext context;
 	
 	@Autowired
-	public EngineController(@Qualifier("diesel") EngineService dieselEngineService,
-			@Qualifier("petrol") EngineService petrolEngineService) {
-		this.dieselEngineService = dieselEngineService;
-		this.petrolEngineService = petrolEngineService;
+	public EngineController(ApplicationContext context) {
+		this.context = context;
 	}
-
-
+	
 	@GetMapping("/mvc/fuel/check")
 	@FuelExceptionHandler
-	public String getEngineType(@RequestParam String type) {
+	public String getEngineType(@RequestParam String type, Model model) {
 		type = type.toLowerCase().trim();
-		if (type.equals("diesel")) {
-			return dieselEngineService.powerUp();
-		} else if (type.equals("petrol")) {
-			return petrolEngineService.powerUp();
-		} else {
+		try {
+			EngineService service = (EngineService) context.getBean(type);
+			model.addAttribute("message", service.powerUp());
+			return "index";
+		} catch (Exception e) {
 			throw new FuelTypeException("Invalid engine type");
 		}
 	}
