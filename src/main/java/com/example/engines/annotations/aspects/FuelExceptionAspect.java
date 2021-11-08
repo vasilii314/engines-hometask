@@ -1,10 +1,9 @@
 package com.example.engines.annotations.aspects;
 
-import java.io.IOException;
-
-import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.AfterThrowing;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 
 
@@ -12,10 +11,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class FuelExceptionAspect {
 	
+	@Pointcut("@annotation(com.example.engines.annotations.FuelExceptionHandler)")
+    public void callWhenFueExceptionThrown() { }
+	
 
-	@AfterThrowing(value = "@annotation(com.example.engines.annotations.FuelExceptionHandler)", throwing = "e")
-	public String handleFuelException(JoinPoint joinPoint, Exception e) throws IOException {
-		System.out.println("Something went wrong");
-		return "error";
+	@Around("callWhenFueExceptionThrown()")
+	public Object handleFuelException(ProceedingJoinPoint pjp) {
+		try {
+			System.out.println("Something went wrong");
+			return pjp.proceed();
+		} catch(Throwable e) {
+			return "myerror";
+		}
 	}
 } 
